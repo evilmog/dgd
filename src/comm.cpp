@@ -79,6 +79,7 @@ public:
 # define CF_OUTPUT	0x0040	/* pending output */
 # define CF_ODONE	0x0080	/* output done */
 # define CF_OPENDING	0x0100	/* waiting for connect() to complete */
+# define CF_MXP		0x0200	/* MXP Support */
 
 /* state */
 # define TS_DATA	0
@@ -105,7 +106,9 @@ static uindex this_user;	/* current user */
 User *User::create(Frame *f, Object *obj, Connection *conn, int flags)
 {
     static char init[] = { (char) IAC, (char) WONT, (char) TELOPT_ECHO,
-			   (char) IAC, (char) DO,   (char) TELOPT_LINEMODE };
+			   (char) IAC, (char) DO,   (char) TELOPT_LINEMODE,
+                           (char) IAC, (char) WILL, (char) TELOPT_MXP };
+
     User *usr;
     Array *arr;
     Value val;
@@ -952,7 +955,10 @@ void Comm::receive(Frame *f, Uint timeout, unsigned int mtime)
     static char brk[] =		{ '\034' };
     static char tm[] =		{ (char) IAC, (char) WONT, (char) TELOPT_TM };
     static char will_sga[] =	{ (char) IAC, (char) WILL, (char) TELOPT_SGA };
-    static char wont_sga[] =	{ (char) IAC, (char) WONT, (char) TELOPT_SGA };
+    static char wont_sga[] =	{ (char) IAC, (char) WONT, (char) TELOPT_SGA };  
+    static char will_mxp[] =   { (char) IAC, (char) WILL, (char) TELOPT_MXP };
+    static char wont_mxp[] =   { (char) IAC, (char) WONT, (char) TELOPT_MXP };
+    static char mxp_start_buf[]= { (char) IAC, (char) SB, (char) TELOPT_MXP, (char) IAC, (char) SE};
     static char mode_edit[] =	{ (char) IAC, (char) SB,
 				  (char) TELOPT_LINEMODE, (char) LM_MODE,
 				  (char) MODE_EDIT, (char) IAC, (char) SE };
@@ -1274,7 +1280,11 @@ void Comm::receive(Frame *f, Uint timeout, unsigned int mtime)
 				usr->flags &= ~CF_GA;
 				usr->write(obj, (String *) NULL, will_sga,
 					   sizeof(will_sga));
-			    }
+                            } else if (UCHAR(*p) == TELOPT_MXP) {
+				usr->flags &= ~CF_MXP;
+				usr->write(obj, (String *) NULL, mxp_start_buf,
+                                           sizeof(mxp_start_buf));
+                            }
 			    state = TS_DATA;
 			    break;
 
