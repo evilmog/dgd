@@ -28,7 +28,7 @@
  */
 # ifndef UINDEX_TYPE
 # define UINDEX_TYPE	unsigned short
-# define UINDEX_MAX	USHRT_MAX
+# define UINDEX_MAX	UINT_MAX
 # endif
 # ifndef SECTOR_TYPE
 # define SECTOR_TYPE	UINDEX_TYPE
@@ -41,7 +41,7 @@
 
 typedef UINDEX_TYPE uindex;
 typedef SECTOR_TYPE Sector;
-# define SW_UNUSED	SECTOR_MAX
+# define SW_UNUSED	UINDEX_MAX
 typedef EINDEX_TYPE eindex;
 # define EINDEX(e)	((eindex) e)
 

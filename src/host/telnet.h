@@ -37,3 +37,4 @@
 # define TELOPT_ECHO	1	/* echo */
 # define TELOPT_SGA	3	/* suppress go ahead */
 # define TELOPT_TM	6	/* timing mark */
+# define TELOPT_MXP	91	/* MXP */
