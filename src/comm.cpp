@@ -1274,26 +1274,30 @@ void Comm::receive(Frame *f, Uint timeout, unsigned int mtime)
 
 			case TS_DO:
 			    if (UCHAR(*p) == TELOPT_TM) {
-				usr->write(obj, (String *) NULL, tm,
+					usr->write(obj, (String *) NULL, tm,
 					   sizeof(tm));
 			    } else if (UCHAR(*p) == TELOPT_SGA) {
 				usr->flags &= ~CF_GA;
 				usr->write(obj, (String *) NULL, will_sga,
 					   sizeof(will_sga));
-                            } else if (UCHAR(*p) == TELOPT_MXP) {
-				usr->flags &= ~CF_MXP;
-				usr->write(obj, (String *) NULL, mxp_start_buf,
+                } else if (UCHAR(*p) == TELOPT_MXP) {
+					usr->flags &= ~CF_MXP;
+					usr->write(obj, (String *) NULL, mxp_start_buf,
                                            sizeof(mxp_start_buf));
-                            }
+                }
 			    state = TS_DATA;
 			    break;
 
 			case TS_DONT:
 			    if (UCHAR(*p) == TELOPT_SGA) {
-				usr->flags |= CF_GA;
-				usr->write(obj, (String *) NULL, wont_sga,
+					usr->flags |= CF_GA;
+					usr->write(obj, (String *) NULL, wont_sga,
 					   sizeof(wont_sga));
-			    }
+			    } else if (UCHAR(*p) == TELOPT_MXP) {
+					usr->flags |= CF_MXP;
+					usr->write(obj, (String *) NULL, wont_mxp,
+                                           sizeof(wont_mxp));
+                }
 			    state = TS_DATA;
 			    break;
 
